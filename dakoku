@@ -24,11 +24,13 @@ else
   dakoku.journal
 end
 
+$LOAD_PATH.unshift File.expand_path("../lib", File.dirname(__FILE__))
+#require "dakoku"
 #todo:保存ディレクトリはどうする？
-f = open "/home/shimomura/work/time-analytics/dakoku/" + Time.now.strftime("%Y%m%d") + ".dat", "a"
-
-f.write Time.now.to_s + "  " + doing + "\n"
-f.close
+#f = open "/home/shimomura/work/time-analytics/dakoku/" + Time.now.strftime("%Y%m%d") + ".dat", "a"
+#
+#f.write Time.now.to_s + "  " + doing + "\n"
+#f.close
 
 # Dakoku
 # -Journal
@@ -39,7 +41,11 @@ f.close
 class Dakoku
   def initialize(arg)
     @doing = arg
-    @f = open "/home/shimomura/work/time-analytics/dakoku/" + Time.now.strftime("%Y%m%d") + ".dat", "a"
+    @f = nil
+  end
+
+  def set_file(filename = Time.now.strftime("%Y%m%d"))
+    @f = open("/home/shimomura/work/time-analytics/dakoku/#{filename}.dat", "a")
   end
 
   def dakoku
