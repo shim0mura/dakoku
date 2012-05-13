@@ -9,7 +9,7 @@ USAGE <<-HELP
   -a (--amend)  amend your journal of the selected line
   -c (--config) change reminder settings
 HELP
-HOME = File.expand_path("~")
+JOURNAL_DIR = File.expand_path("~")
 
 unless ARGV
   puts "USAGE dakoku things what are you doing now"
@@ -36,6 +36,7 @@ $LOAD_PATH.unshift File.expand_path("../lib", File.dirname(__FILE__))
 
 class Dakoku
   def initialize(arg)
+    check_dir
     @doing = arg
     @file = nil
   end
@@ -61,7 +62,19 @@ class Dakoku
     puts_lists(@file)
   end
 
+  def update
+  end
+
+  def remove
+  end
+
   private
+  def check_dir(path)
+    return if File.exist?(path)
+    check_dir(File.dirname(path))
+    Dir.mkdir(path)
+  end
+
   def set_file(filename = Time.now.strftime("%Y%m%d"))
     @file = open("/home/shimomura/work/time-analytics/dakoku/#{filename}.dat", "a")
   end
