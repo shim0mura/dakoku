@@ -2,64 +2,51 @@
 
 require 'readline'
 
-USAGE <<-HELP
+JOURNAL_HOME = File.expand_path("~") + "/.dakoku"
+USAGE = <<HELP
   USAGE dakoku [options] what are you doing
   -h (--help)   show this help
   -l (--list)   show your journal of the selected day
   -a (--amend)  amend your journal of the selected line
   -c (--config) change reminder settings
 HELP
-JOURNAL_DIR = File.expand_path("~")
 
-unless ARGV
-  puts "USAGE dakoku things what are you doing now"
-  exit!
-end
-
-dakoku = Dakoku.new
-
-case ARGV[0]
-when "-h", "--help"
-  puts USAGE
-when "-l", "--list"
-  dakoku.list
-else
-  dakoku.journal
-end
-
-$LOAD_PATH.unshift File.expand_path("../lib", File.dirname(__FILE__))
-
-# Dakoku
-# -Journal
-# -Reminder
-# (-API)
+#$LOAD_PATH.unshift File.expand_path("../lib", File.dirname(__FILE__))
 
 class Dakoku
-  def initialize(arg)
-    check_dir
-    @doing = arg
+  def initialize
+    now = Time.now
+    check_dir(JOURNAL_HOME + "/#{now.year}/#{now.month}")
     @file = nil
   end
 
-  def dakoku
-    set_file
-    @file.write @doing
+  def journal(doing)
+    set_file("a")
+    @file.write(Time.now.to_s + ": " + doing + "\n")
     @file.close
   end
 
-  def list
-    file_list = Dir.glob("*")
-    puts_lists(file_list)
+  def list(year = Time.now.year, month = Time.now.month)
+    #todo:翌月前月の選択、プロンプトの変更
+    search_dir = JOURNAL_HOME + "/#{year}/#{month}/*"
+    file_list = Dir.glob(search_dir)
+    counter = puts_lists(file_list)
+    puts "-" * 20
     puts "select line number you want to show."
     begin
       while select = Readline.readline("line? > ", false)
         #next unless select.valid_selector?
+        #break if File.exist?(file_list[select.to_s])
+        break if select
       end
     rescue
       exit!
-    end      
-    set_file(filelist[select])
-    puts_lists(@file)
+    end
+    #set_file(search_dir + filelist[select])
+    set_file("r", file_list[select.to_i])
+    p @file
+    puts_lists(@file.readlines)
+    @file.close
   end
 
   def update
@@ -75,15 +62,36 @@ class Dakoku
     Dir.mkdir(path)
   end
 
-  def set_file(filename = Time.now.strftime("%Y%m%d"))
-    @file = open("/home/shimomura/work/time-analytics/dakoku/#{filename}.dat", "a")
+  def set_file(type, filename = nil)
+    unless filename
+      now = Time.now
+      filename = JOURNAL_HOME + "/#{now.year}/#{now.month}/#{now.strftime('%Y%m%d')}.dat"
+    end
+    @file = open(filename, type)
   end
 
   def puts_lists(lists)
     counter = 0
-    lists do |line|
-      put "#{counter}: " + line
+    lists.each do |line|
+      puts "#{counter}: " + line
     end
+    counter
   end
 
+end
+
+#unless ARGV[0]
+#  puts "USAGE dakoku things what are you doing now"
+#  exit!
+#end
+dakoku = Dakoku.new
+
+
+case ARGV[0]
+when "-h", "--help", nil
+  puts USAGE
+when "-l", "--list"
+  dakoku.list
+else
+  dakoku.journal(ARGV[0])
 end
