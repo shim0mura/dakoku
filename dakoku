@@ -9,6 +9,7 @@ USAGE <<-HELP
   -a (--amend)  amend your journal of the selected line
   -c (--config) change reminder settings
 HELP
+HOME = File.expand_path("~")
 
 unless ARGV
   puts "USAGE dakoku things what are you doing now"
@@ -32,7 +33,6 @@ $LOAD_PATH.unshift File.expand_path("../lib", File.dirname(__FILE__))
 # -Journal
 # -Reminder
 # (-API)
-#
 
 class Dakoku
   def initialize(arg)
@@ -47,7 +47,6 @@ class Dakoku
   end
 
   def list
-    counter = 0
     file_list = Dir.glob("*")
     puts_lists(file_list)
     puts "select line number you want to show."
@@ -59,7 +58,7 @@ class Dakoku
       exit!
     end      
     set_file(filelist[select])
-    put_lists(@file)
+    puts_lists(@file)
   end
 
   private
@@ -67,7 +66,7 @@ class Dakoku
     @file = open("/home/shimomura/work/time-analytics/dakoku/#{filename}.dat", "a")
   end
 
-  def put_lists(lists)
+  def puts_lists(lists)
     counter = 0
     lists do |line|
       put "#{counter}: " + line
