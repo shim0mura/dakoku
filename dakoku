@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 
+require 'readline'
+
 USAGE <<-HELP
   USAGE dakoku [options] what are you doing
   -h (--help)   show this help
@@ -25,12 +27,6 @@ else
 end
 
 $LOAD_PATH.unshift File.expand_path("../lib", File.dirname(__FILE__))
-#require "dakoku"
-#todo:保存ディレクトリはどうする？
-#f = open "/home/shimomura/work/time-analytics/dakoku/" + Time.now.strftime("%Y%m%d") + ".dat", "a"
-#
-#f.write Time.now.to_s + "  " + doing + "\n"
-#f.close
 
 # Dakoku
 # -Journal
@@ -41,33 +37,41 @@ $LOAD_PATH.unshift File.expand_path("../lib", File.dirname(__FILE__))
 class Dakoku
   def initialize(arg)
     @doing = arg
-    @f = nil
-  end
-
-  def set_file(filename = Time.now.strftime("%Y%m%d"))
-    @f = open("/home/shimomura/work/time-analytics/dakoku/#{filename}.dat", "a")
+    @file = nil
   end
 
   def dakoku
-    @f.write @doing
-    @f.close
+    set_file
+    @file.write @doing
+    @file.close
   end
 
   def list
     counter = 0
-    lists = []
-    #ディレクトリorline出力はupdateと同じ感じにできる？method切ったほうがいいかも
-    while line = @f.read
+    file_list = Dir.glob("*")
+    puts_lists(file_list)
+    puts "select line number you want to show."
+    begin
+      while select = Readline.readline("line? > ", false)
+        #next unless select.valid_selector?
+      end
+    rescue
+      exit!
+    end      
+    set_file(filelist[select])
+    put_lists(@file)
+  end
+
+  private
+  def set_file(filename = Time.now.strftime("%Y%m%d"))
+    @file = open("/home/shimomura/work/time-analytics/dakoku/#{filename}.dat", "a")
+  end
+
+  def put_lists(lists)
+    counter = 0
+    lists do |line|
       put "#{counter}: " + line
-      lists.push(line)
-    end
-    puts "select number."
-    while select = gets
-      next unless select.valid_selector?
-      #ディレクトリの出力
-      puts lists[select]
-      break
     end
   end
-end
 
+end
