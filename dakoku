@@ -18,25 +18,27 @@ class Dakoku
     now = Time.now
     check_dir(JOURNAL_HOME + "/#{now.year}/#{now.month}")
     @file = nil
+    @now = Time.now
   end
 
   def journal(doing)
     set_file("a")
-    @file.write(Time.now.to_s + ": " + doing + "\n")
+    @file.write(@now.to_s + ": " + doing + "\n")
     @file.close
   end
 
-  def list(year = Time.now.year, month = Time.now.month)
-    #todo:翌月前月の選択、プロンプトの変更
+  def list(year = @now.year, month = @now.month)
     search_dir = JOURNAL_HOME + "/#{year}/#{month}/*"
     file_list = Dir.glob(search_dir)
     counter = puts_lists(file_list)
-    puts "-" * 20
-    puts "select line number you want to show."
+    puts "\n" + "-" * 20
+    puts "\nselect line number you want to show.\n\n"
     begin
       while select = Readline.readline("line? > ", false)
         #next unless select.valid_selector?
         #break if File.exist?(file_list[select.to_s])
+        #return list(@now.year, month-1) if select == "before" || select == "next"
+        #return list(year, month) if select == "before" || select == "next"
         break if select
       end
     rescue
@@ -44,48 +46,79 @@ class Dakoku
     end
     #set_file(search_dir + filelist[select])
     set_file("r", file_list[select.to_i])
-    p @file
     puts_lists(@file.readlines)
     @file.close
   end
 
   def update
+    set_file
+    lines = @file.readlines
+    if lines.empty?
+      puts "You don't have journal to be update."
+      exit!
+    end
+
+    counter = puts_lists(lines)
+    puts "\n" + "-" * 20
+    puts "\nselect line number you want to update.\n\n"
+    input = get_input(0..counter-1)
+    puts lines[select] unless lines[select].empty?
+
   end
 
   def remove
+
   end
 
   private
+  def get_input(validate_range)
+    begin
+      while select = Readline.readline("line? > ", false)
+        break if validate_range.include?(select)
+        next puts "invalid input. select line number."
+      end
+    rescue
+      exit!
+    end
+    select
+  end
+  #def getAround(year, month)
+  #  date = DateTime.new(year, month)
+  #  date.new_offset(Rational(9, 24))
+
+  #  before_year = (date<<1).year
+  #  before_month = (date<<).month
+  #  next_year = (date>>1).year
+  #  next_month = (date>>1).month
+  #  return if check_dir(JOURNAL_HOME + "/#{year}/#{month}")
+  #end
+
   def check_dir(path)
-    return if File.exist?(path)
-    check_dir(File.dirname(path))
+    return true if File.exist?(path)
+    check_dir(File.dirname(path), mkdir?)
     Dir.mkdir(path)
   end
 
   def set_file(type, filename = nil)
     unless filename
-      now = Time.now
-      filename = JOURNAL_HOME + "/#{now.year}/#{now.month}/#{now.strftime('%Y%m%d')}.dat"
+      filename = JOURNAL_HOME + "/#{@now.year}/#{@now.month}/#{@now.strftime('%Y%m%d')}.dat"
     end
     @file = open(filename, type)
   end
 
   def puts_lists(lists)
     counter = 0
+    puts "\n"
     lists.each do |line|
-      puts "#{counter}: " + line
+      puts "[#{counter}]  " + line
+      counter += 1
     end
     counter
   end
 
 end
 
-#unless ARGV[0]
-#  puts "USAGE dakoku things what are you doing now"
-#  exit!
-#end
 dakoku = Dakoku.new
-
 
 case ARGV[0]
 when "-h", "--help", nil
