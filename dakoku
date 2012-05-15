@@ -50,8 +50,8 @@ class Dakoku
     @file.close
   end
 
-  def update
-    set_file
+  def amend
+    set_file("r")
     lines = @file.readlines
     if lines.empty?
       puts "You don't have journal to be update."
@@ -62,8 +62,14 @@ class Dakoku
     puts "\n" + "-" * 20
     puts "\nselect line number you want to update.\n\n"
     input = get_input(0..counter-1)
-    puts lines[select] unless lines[select].empty?
+    puts "\n#{lines[input]}\ninput alter journal."
+    while amend = Readline.readline("journal? > ", false)
+      break if amend
+    end
+    lines[input] = amend + "\n"
+    set_file("w")
 
+    lines.each{|value| @file.write(value.to_s)}
   end
 
   def remove
@@ -73,7 +79,7 @@ class Dakoku
   private
   def get_input(validate_range)
     begin
-      while select = Readline.readline("line? > ", false)
+      while select = Readline.readline("line? > ", false).to_i
         break if validate_range.include?(select)
         next puts "invalid input. select line number."
       end
@@ -99,6 +105,7 @@ class Dakoku
     Dir.mkdir(path)
   end
 
+  #todo:引数の順番逆にしたい
   def set_file(type, filename = nil)
     unless filename
       filename = JOURNAL_HOME + "/#{@now.year}/#{@now.month}/#{@now.strftime('%Y%m%d')}.dat"
@@ -125,6 +132,8 @@ when "-h", "--help", nil
   puts USAGE
 when "-l", "--list"
   dakoku.list
+when "-a", "--amend"
+  dakoku.amend
 else
   dakoku.journal(ARGV[0])
 end
