@@ -7,7 +7,8 @@ USAGE = <<HELP
   USAGE dakoku [options] what are you doing
   -h (--help)   show this help
   -l (--list)   show your journal of the selected day
-  -a (--amend)  amend your journal of the selected line
+  -a (--amend)  update your last journal
+  -u (--update)  update your journal of the selected line of that day
   -c (--config) change reminder settings
 HELP
 
@@ -50,11 +51,19 @@ class Dakoku
     @file.close
   end
 
-  def amend
+  def amend(doing)
+    set_file("r+")
+    lines = @file.readlines
+    lines[lines.size-1] = @now.to_s + ": " + doing + "\n"
+    @file.seek(0)
+    lines.each{|value| @file.write(value.to_s)}
+  end
+
+  def update
     set_file("r")
     lines = @file.readlines
     if lines.empty?
-      puts "You don't have journal to be update."
+      puts "There is no journal to be update."
       exit!
     end
 
@@ -70,10 +79,6 @@ class Dakoku
     set_file("w")
 
     lines.each{|value| @file.write(value.to_s)}
-  end
-
-  def remove
-
   end
 
   private
@@ -132,8 +137,10 @@ when "-h", "--help", nil
   puts USAGE
 when "-l", "--list"
   dakoku.list
+when "-u", "--update"
+  dakoku.update
 when "-a", "--amend"
-  dakoku.amend
+  dakoku.amend(ARGV[1])
 else
   dakoku.journal(ARGV[0])
 end
