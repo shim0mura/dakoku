@@ -32,21 +32,12 @@ class Dakoku
     search_dir = JOURNAL_HOME + "/#{year}/#{month}/*"
     file_list = Dir.glob(search_dir).sort!
     counter = puts_lists(file_list)
+
     puts "\n" + "-" * 20
     puts "\nselect line number you want to show.\n\n"
-    begin
-      while select = Readline.readline("line? > ", false)
-        #next unless select.valid_selector?
-        #break if File.exist?(file_list[select.to_s])
-        #return list(@now.year, month-1) if select == "before" || select == "next"
-        #return list(year, month) if select == "before" || select == "next"
-        break if select
-      end
-    rescue
-      exit!
-    end
-    #set_file(search_dir + filelist[select])
-    set_file("r", file_list[select.to_i])
+    input = get_input(0..counter-1)
+
+    set_file("r", file_list[input.to_i])
     puts_lists(@file.readlines)
     @file.close
   end
