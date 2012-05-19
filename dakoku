@@ -30,7 +30,7 @@ class Dakoku
 
   def list(year = @now.year, month = @now.month)
     search_dir = JOURNAL_HOME + "/#{year}/#{month}/*"
-    file_list = Dir.glob(search_dir)
+    file_list = Dir.glob(search_dir).sort!
     counter = puts_lists(file_list)
     puts "\n" + "-" * 20
     puts "\nselect line number you want to show.\n\n"
