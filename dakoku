@@ -140,7 +140,8 @@ when "-l", "--list"
 when "-u", "--update"
   dakoku.update
 when "-a", "--amend"
-  dakoku.amend(ARGV[1])
+  ARGV.delete_at(0)
+  dakoku.amend(ARGV.join(" "))
 else
-  dakoku.journal(ARGV[0])
+  dakoku.journal(ARGV.join(" "))
 end
