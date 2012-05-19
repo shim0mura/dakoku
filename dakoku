@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'readline'
+require 'yaml'
 
 JOURNAL_HOME = File.expand_path("~") + "/.dakoku"
 USAGE = <<HELP
@@ -18,6 +19,7 @@ class Dakoku
   def initialize
     now = Time.now
     check_dir(JOURNAL_HOME + "/#{now.year}/#{now.month}")
+    check_conf
     @file = nil
     @now = Time.now
   end
@@ -118,7 +120,12 @@ class Dakoku
     end
     counter
   end
+end
 
+class Config
+  def initialize
+    @conf = YAML.load(open(JOURNAL_HOME + "/config.yaml", "w+").read)
+  end
 end
 
 dakoku = Dakoku.new
