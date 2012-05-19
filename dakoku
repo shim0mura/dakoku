@@ -2,6 +2,7 @@
 
 require 'readline'
 require 'yaml'
+require 'pp'
 
 JOURNAL_HOME = File.expand_path("~") + "/.dakoku"
 USAGE = <<HELP
@@ -125,7 +126,18 @@ end
 class Config
   def initialize
     @conf = YAML.load(open(JOURNAL_HOME + "/config.yaml", "w+").read)
+    @cron = @cong.cron
   end
+
+  def list
+    @conf.each do |key, value|
+      puts "setting for #{key} :"
+      value.each do |_k, _v|
+        puts "  #{_k} : #{_v}"
+      end
+    end
+  end
+
 end
 
 dakoku = Dakoku.new
