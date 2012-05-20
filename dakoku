@@ -123,7 +123,7 @@ class Dakoku
   end
 end
 
-class Config
+class DakokuConfig
   def initialize
     @conf = YAML.load(open(JOURNAL_HOME + "/config.yaml", "w+").read)
     @cron = @cong.cron
@@ -136,6 +136,11 @@ class Config
         puts "  #{_k} : #{_v}"
       end
     end
+  end
+
+  def set(key, value)
+
+
   end
 
 end
