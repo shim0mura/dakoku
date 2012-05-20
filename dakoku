@@ -20,7 +20,7 @@ class Dakoku
   def initialize
     now = Time.now
     check_dir(JOURNAL_HOME + "/#{now.year}/#{now.month}")
-    check_conf
+    #check_conf
     @file = nil
     @now = Time.now
   end
@@ -139,8 +139,16 @@ class DakokuConfig
   end
 
   def set(key, value)
+    
 
 
+  end
+
+  def check_key(key)
+    @conf.each do |config, value|
+      return true value.has_key?(key)
+      false
+    end
   end
 
 end
