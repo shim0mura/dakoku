@@ -139,14 +139,17 @@ class DakokuConfig
   end
 
   def set(key, value)
-    
-
-
+    config = check_config_category(key)
+    unless config
+      puts "no such a config param: #{key}"
+      exit!
+    end
+    config[key] = value
   end
 
-  def check_key(key)
+  def check_config_category(key)
     @conf.each do |config, value|
-      return true value.has_key?(key)
+      return config value.has_key?(key)
       false
     end
   end
