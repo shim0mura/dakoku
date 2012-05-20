@@ -20,7 +20,6 @@ class Dakoku
   def initialize
     now = Time.now
     check_dir(JOURNAL_HOME + "/#{now.year}/#{now.month}")
-    #check_conf
     @file = nil
     @now = Time.now
   end
@@ -125,7 +124,7 @@ end
 
 class DakokuConfig
   def initialize
-    @conf = YAML.load(open(JOURNAL_HOME + "/config.yaml", "w+").read)
+    @conf = YAML.load(open(JOURNAL_HOME + "/config.yaml", "r").read)
     @cron = @cong.cron
   end
 
@@ -152,6 +151,10 @@ class DakokuConfig
       return config value.has_key?(key)
       false
     end
+  end
+
+  def update
+    YAML.dump(@conf, open(JOURNAL_HOME + "config.yaml", "w"))
   end
 
 end
