@@ -21,6 +21,8 @@ class Dakoku
     now = Time.now
     check_dir(JOURNAL_HOME + "/#{now.year}/#{now.month}")
     @file = nil
+    @config = DakokuConfig.new
+    p @config.conf
     @now = Time.now
   end
 
@@ -125,7 +127,6 @@ end
 class DakokuConfig
   def initialize
     @conf = YAML.load(open(JOURNAL_HOME + "/config.yaml", "r").read)
-    @cron = @cong.cron
   end
 
   def list
@@ -144,13 +145,14 @@ class DakokuConfig
       exit!
     end
     config[key] = value
+    update
   end
 
   def check_config_category(key)
     @conf.each do |config, value|
-      return config value.has_key?(key)
-      false
+      return config if value.has_key?(key)
     end
+    false
   end
 
   def update
@@ -171,6 +173,8 @@ when "-u", "--update"
 when "-a", "--amend"
   ARGV.delete_at(0)
   dakoku.amend(ARGV.join(" "))
+when "-c", "--config"
+
 else
   dakoku.journal(ARGV.join(" "))
 end
