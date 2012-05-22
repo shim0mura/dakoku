@@ -2,7 +2,6 @@
 
 require 'readline'
 require 'yaml'
-require 'pp'
 
 JOURNAL_HOME = File.expand_path("~") + "/.dakoku"
 USAGE = <<HELP
@@ -22,7 +21,6 @@ class Dakoku
     check_dir(JOURNAL_HOME + "/#{now.year}/#{now.month}")
     @file = nil
     @config = DakokuConfig.new
-    p @config.conf
     @now = Time.now
   end
 
@@ -76,6 +74,16 @@ class Dakoku
     lines.each{|value| @file.write(value.to_s)}
   end
 
+  def config(key = nil, value = nil)
+    if key && value
+      @config.set(key, value)
+    elsif key && !value
+      puts @config.get(key)
+    else
+      @config.list
+    end
+  end
+
   private
   def get_input(validate_range)
     begin
@@ -126,7 +134,9 @@ end
 
 class DakokuConfig
   def initialize
-    @conf = YAML.load(open(JOURNAL_HOME + "/config.yaml", "r").read)
+    file = open(JOURNAL_HOME + "/config.yaml", "r")
+    @conf = YAML.load(file.read)
+    file.close
   end
 
   def list
@@ -139,24 +149,27 @@ class DakokuConfig
   end
 
   def set(key, value)
-    config = check_config_category(key)
-    unless config
-      puts "no such a config param: #{key}"
-      exit!
-    end
-    config[key] = value
+    category = check_config_category(key)
+    category[key] = value
     update
   end
 
+  def get(key)
+    category = check_config_category(key)
+    category[key]
+  end
+
+  private
   def check_config_category(key)
-    @conf.each do |config, value|
-      return config if value.has_key?(key)
+    @conf.each do |category, value|
+      return value if value.has_key?(key)
     end
-    false
+    puts "no such a config param: #{key}"
+    exit!
   end
 
   def update
-    YAML.dump(@conf, open(JOURNAL_HOME + "config.yaml", "w"))
+    YAML.dump(@conf, open(JOURNAL_HOME + "/config.yaml", "w"))
   end
 
 end
@@ -174,7 +187,8 @@ when "-a", "--amend"
   ARGV.delete_at(0)
   dakoku.amend(ARGV.join(" "))
 when "-c", "--config"
-
+  ARGV.delete_at(0)
+  dakoku.config(*ARGV)
 else
   dakoku.journal(ARGV.join(" "))
 end
