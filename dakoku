@@ -178,6 +178,10 @@ class Cron
 
   end
 
+  def update_crontab
+
+  end
+
   def format
 
   end
