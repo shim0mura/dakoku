@@ -191,39 +191,68 @@ class Cron
   START_TAG = "# START dakoku generated task"
   END_TAG = "# END dakoku generated task"
 
-  def initialize
+  def initialize(config)
     result = %x[crontab -l 2> /dev/null]
     @crontab = $?.exitstatus.zero? ? result : ""
     p @crontab
-  end
 
-  def set_crontab(config)
+    file_content = nil
     unless config["notify"]
-      delete
+      file_content = delete
       return
+    else
+      @crontab = @crontab.delete("notify")
+      @format = format
+
+      file_content = crontask_exist? ? update : new
+    end
+    
+    tmp_cron_file = Tempfile.new('dakoku_tmp_cron').path
+    File.open(tmp_cron_file, "w") do |file|
+      file << file_content
     end
 
-
+    if system("crontab #{tmp_cron_file}")
+      puts "install new crontab successed."
+      exit(0)
+    else
+      warn "[fail] failed to install new crontab."
+      exit(1)
+    end
   end
 
   private
   def format
-
+    
   end
 
   def crontask_exist?
+    if @crontab =~ Regexp.new("^#{START_TAG}\s*$") && (@crontab =~ Regexp.new("^#{END_TAG}\s*$")).nil?
+      warn "[fail] Unclosed indentifier; Your crontab file contains '#{START_TAG}', but no '#{END_TAG}'"
+      exit(1)
+    elsif (@crontab =~ Regexp.new("^#{START_TAG}\s*$")).nil? && @crontab =~ Regexp.new("^#{END_TAG}\s*$")
+      warn "[fail] Unopened indentifier; Your crontab file contains '#{END_TAG}', but no '#{START_TAG}'"
+      exit(1)
+    end
 
+    if @crontab =~ Regexp.new("^#{START_TAG}\s*$") && @crontab =~ Regexp.new("^#{END_TAG}\s*$")
+      return true
+    else
+      return false
+    end
   end
 
-  def create
-
+  def new
+    [@crontab, START_TAG, @format, END_TAG].join("\n")
   end
 
   def update
-
+    @crontab.gsub(Regexp.new("^#{START_TAG}\s*$.+^#{END_TAG}\s*$", Regexp::MULTILINE), @format)
+    @crontab
   end
 
   def delete
+    @crontab.gsub(Regexp.new("^#{START_TAG}\s*$.+^#{END_TAG}\s*$", Regexp::MULTILINE), "")
 
   end
 end
