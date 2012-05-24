@@ -110,7 +110,7 @@ class Dakoku
 
   def check_dir(path)
     return true if File.exist?(path)
-    check_dir(File.dirname(path), mkdir?)
+    check_dir(File.dirname(path))
     Dir.mkdir(path)
   end
 
