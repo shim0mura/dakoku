@@ -188,15 +188,42 @@ cron:
 end
 
 class Cron
-  def write_crontab(content)
+  START_TAG = "# START dakoku generated task"
+  END_TAG = "# END dakoku generated task"
+
+  def initialize
+    result = %x[crontab -l 2> /dev/null]
+    @crontab = $?.exitstatus.zero? ? result : ""
+    p @crontab
+  end
+
+  def set_crontab(config)
+    unless config["notify"]
+      delete
+      return
+    end
+
 
   end
 
-  def update_crontab
-
-  end
-
+  private
   def format
+
+  end
+
+  def crontask_exist?
+
+  end
+
+  def create
+
+  end
+
+  def update
+
+  end
+
+  def delete
 
   end
 end
