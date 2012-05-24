@@ -171,7 +171,16 @@ class DakokuConfig
   def update
     YAML.dump(@conf, open(JOURNAL_HOME + "/config.yaml", "w"))
   end
+end
 
+class Cron
+  def write_crontab(content)
+
+  end
+
+  def format
+
+  end
 end
 
 dakoku = Dakoku.new

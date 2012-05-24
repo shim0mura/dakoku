@@ -1,0 +1,60 @@
+オプション
+-l --list
+引数は取らない
+その月の打刻表示
+次の月or前の月のプロンプトだす
+
+-a --amend
+その日の打刻の修正
+各打刻に番号つける
+番号をプロンプトで選ばせて、選んだ番号の打刻を修正
+選んだ打刻はオートフィル
+
+-s --schedule
+その日の計画
+todolist入力させる？
+todo
+見積もり時間(hours)
+RTM連携
+
+-c --config
+リマインダ設定
+リマインダのON・OFF
+時間帯設定させて時間間隔の設定
+これもオートコンプリート（できるのか？）
+
+
+extra
+simplenote-apiとかRMTと連携させる
+リマインダだけ入れれるようにする
+計画のdiff表示
+
+
+
+config
+confファイルの読み込み
+出力
+値の変更
+-c --config
+値の出力
+-c [key] [value]
+config設定
+
+cronとかの変更はそのクラスに任せる
+
+cron周りの設定値
+通知間隔
+通知時間帯
+
+cron: 
+  notify_interval: 
+  notify_range_week: 
+  notify_range_day:
+
+Cronでやること
+  cronの書き込み
+  cronの更新
+  cron削除
+  cron formatに変換
+自動挿入はstartとendで区切る
+wheneverをパクる
