@@ -134,7 +134,8 @@ end
 
 class DakokuConfig
   def initialize
-    file = open(JOURNAL_HOME + "/config.yaml", "r")
+    config_path = JOURNAL_HOME + "/config.yaml"
+    file = FileTest.exist?(config_path) ? open(config_path, "r") : create_config(config_path)
     @conf = YAML.load(file.read)
     file.close
   end
@@ -166,6 +167,19 @@ class DakokuConfig
     end
     puts "no such a config param: #{key}"
     exit!
+  end
+
+  def create_config(path)
+    config = open(path, "w+")
+    initial_config = <<-CONF
+cron:
+  notify: off
+  notify_interval: 30
+  notify_range_week: 1-5
+  notify_range_day: 9-18
+    CONF
+    config.write(initial_config)
+    config
   end
 
   def update
